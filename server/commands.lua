@@ -11,7 +11,14 @@ lib.addCommand('givekeys', {
     restricted = false,
 }, function (source, args)
     local src = source
-    TriggerClientEvent('vehiclekeys:client:GiveKeys', src, args.id)
+    if IsCloseToCoords(GetEntityCoords(GetPlayerPed(src)), GetEntityCoords(GetPlayerPed(args.id)), 10.0) then
+        TriggerClientEvent('vehiclekeys:client:GiveKeys', src, args.id)
+    else
+        TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            description = Lang:t("notify.not_near"),
+            type = 'error'
+        })
+    end
 end)
 
 --[[ NOT YET IMPLEMENTED

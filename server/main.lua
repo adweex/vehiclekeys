@@ -1,4 +1,4 @@
-QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['qbx-core']:GetCoreObject()
 
 --- ##########################
 --- ### SERVER-ONLY EVENTS ###
@@ -50,6 +50,7 @@ end)
 ---@param source number ID of the player
 ---@param netId number The network ID of the entity.
 ---@param targetPlayerId number ID of the target player who receives the key
+---@return boolean | nil
 lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targetPlayerId)
     if not source or not netId or not targetPlayerId then return end
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
@@ -59,7 +60,7 @@ lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targ
     if HasKey(entity, citizenid) then
         return not HasKey(entity, targetPlayerCitizenid) and GiveKey(entity, targetPlayerCitizenid)
     else
-        TriggerClientEvent('ox_lib:notify', source, {
+        TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
@@ -70,6 +71,7 @@ end)
 ---@param source number ID of the player
 ---@param netId number The network ID of the entity.
 ---@param targetPlayerId number ID of the target player who receives the key
+---@return boolean | nil
 lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, targetPlayerId)
     if not source or not netId or not targetPlayerId then return end
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
@@ -79,7 +81,7 @@ lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, ta
     if HasKey(entity, citizenid) then
         return HasKey(entity, targetPlayerCitizenid) and RemoveKey(entity, targetPlayerCitizenid)
     else
-        TriggerClientEvent('ox_lib:notify', source, {
+        TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
@@ -103,7 +105,7 @@ lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId,
             print('^1 Player '..source..' failed distance check during (callback: vehiclekeys:server:SetDoorState)')
         end
     else
-        TriggerClientEvent('ox_lib:notify', source, {
+        TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
