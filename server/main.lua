@@ -12,8 +12,8 @@ RegisterNetEvent('vehiclekeys:server:GiveKey', function(id, netId)
         if not id or not netId then return end
         GiveKey(NetworkGetEntityFromNetworkId(netId), QBCore.Functions.GetPlayer(id).PlayerData.citizenid)
     else
-        DropPlayer(source, 'Invalid Event')
-        print('^1 Player '..source..' attempted to call a server-only event (vehiclekeys:server:GiveKey)')
+        DropPlayer(source, Lang:t('console.invalid_event'))
+        print(Lang:t('console.error_server_only', { value = source, event = 'vehiclekeys:server:GiveKey' }))
     end
 end)
 
@@ -25,8 +25,8 @@ RegisterNetEvent('vehiclekeys:server:RemoveKey', function(id, netId)
         if not id or not netId then return end
         RemoveKey(NetworkGetEntityFromNetworkId(netId), QBCore.Functions.GetPlayer(id).PlayerData.citizenid)
     else
-        DropPlayer(source, 'Invalid Event')
-        print('^1 Player '..source..' attempted to call a server-only event (vehiclekeys:server:RemoveKey)')
+        DropPlayer(source, Lang:t('console.invalid_event'))
+        print(Lang:t('console.error_server_only', { value = source, event = 'vehiclekeys:server:RemoveKey' }))
     end
 end)
 
@@ -37,8 +37,8 @@ RegisterNetEvent('vehiclekeys:server:SetDoorState', function(netId, doorState)
         if not netId or not doorState then return end
         SetDoorState(NetworkGetEntityFromNetworkId(netId), doorState)
     else
-        DropPlayer(source, 'Invalid Event')
-        print('^1 Player '..source..' attempted to call a server-only event (vehiclekeys:server:SetDoorState)')
+        DropPlayer(source, Lang:t('console.invalid_event'))
+        print(Lang:t('console.error_server_only', { value = source, event = 'vehiclekeys:server:SetDoorState' }))
     end
 end)
 
@@ -47,7 +47,7 @@ end)
 --- #############################
 
 --- Gives a key to an entity based on the target player's CitizenID but only if the owner already has a key.
----@param source string ID of the player
+---@param source number ID of the player
 ---@param netId number The network ID of the entity.
 ---@param targetPlayerId number ID of the target player who receives the key
 lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targetPlayerId)
@@ -60,15 +60,14 @@ lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targ
         return not HasKey(entity, targetPlayerCitizenid) and GiveKey(entity, targetPlayerCitizenid)
     else
         TriggerClientEvent('ox_lib:notify', source, {
-            title = 'Missing Keys',
-            description = 'You don\'t have keys for this vehicle',
+            description = Lang:t("notify.no_keys"),
             type = 'error'
         })
     end
 end)
 
 --- Removes a key from an entity based on the target player's CitizenID but only if the owner has a key.
----@param source string ID of the player
+---@param source number ID of the player
 ---@param netId number The network ID of the entity.
 ---@param targetPlayerId number ID of the target player who receives the key
 lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, targetPlayerId)
@@ -81,14 +80,14 @@ lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, ta
         return HasKey(entity, targetPlayerCitizenid) and RemoveKey(entity, targetPlayerCitizenid)
     else
         TriggerClientEvent('ox_lib:notify', source, {
-            title = 'Missing Keys',
-            description = 'You don\'t have keys for this vehicle',
+            description = Lang:t("notify.no_keys"),
             type = 'error'
-        })    end
+        })
+    end
 end)
 
 --- Sets the door state to a desired value.
----@param source string ID of the player
+---@param source number ID of the player
 ---@param netId number The network ID of the entity
 ---@param doorState number The door state of the vehicle (e.g., open = 0)
 lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId, doorState)
@@ -105,8 +104,7 @@ lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId,
         end
     else
         TriggerClientEvent('ox_lib:notify', source, {
-            title = 'Missing Keys',
-            description = 'You don\'t have keys for this vehicle',
+            description = Lang:t("notify.no_keys"),
             type = 'error'
         })
     end
