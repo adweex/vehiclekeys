@@ -1,14 +1,26 @@
+--- Checks for the existence of a key.
+---@param entity number The entity (vehicle) where we check for the existence of a key.
+---@param citizenid string The CitizenID of the player whose key we check for.
+function HasKey(entity, citizenid)
+    return Entity(entity).state.keys[citizenid]
+end
+
 --- Adds a key to the selected vehicle entity and returns a success status.
 ---@param entity number The entity (vehicle) to which the key is added.
 ---@param citizenid string The CitizenID of the player whose key is being added.
+---@param doorState number | nil -- Sets the doorState of the vehicle if present
 ---@return boolean | nil `true` if the key was successfully added, `nil` otherwise.
-function GiveKey(entity, citizenid)
+function GiveKey(entity, citizenid, doorState)
     if not entity or type(entity) ~= 'number' or not citizenid or type(citizenid) ~= 'string' then
         return
     end
 
     local ent = Entity(entity)
     if not ent then return end
+
+    if doorState then
+        ent.state:set('doorState', doorState, true)
+    end
 
     local keyholders = ent.state.keys or {}
     
@@ -55,10 +67,20 @@ function SetDoorState(entity, doorState)
     return true
 end
 
+---@param entity number The entity (vehicle) for which the door state is updated.
+---@return number | nil returns the new doorState of the vehicle
+function OpenCloseDoorState(entity)
+    if not entity or type(entity) ~= 'number' then
+        return
+    end
 
---- Checks for the existence of a key.
----@param entity number The entity (vehicle) where we check for the existence of a key.
----@param citizenid string The CitizenID of the player whose key we check for.
-function HasKey(entity, citizenid)
-    return Entity(entity).state.keys[citizenid]
+    local ent = Entity(entity)
+    if not ent then return end
+    if ent.state.doorState and ent.state.doorState ~= 0 then
+        ent.state:set('doorState', 1, true)
+        return 1
+    else
+        ent.state:set('doorState', 0, true)
+        return 0
+    end
 end

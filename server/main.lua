@@ -7,10 +7,11 @@ QBCore = exports['qbx-core']:GetCoreObject()
 --- Gives a key to an entity based on the player's CitizenID.
 ---@param id integer The player's ID.
 ---@param netId number The network ID of the entity.
-RegisterNetEvent('vehiclekeys:server:GiveKey', function(id, netId)
+---@param doorState number Sets the door state if given
+RegisterNetEvent('vehiclekeys:server:GiveKey', function(id, netId, doorState)
     if source == -1 then
         if not id or not netId then return end
-        GiveKey(NetworkGetEntityFromNetworkId(netId), QBCore.Functions.GetPlayer(id).PlayerData.citizenid)
+        GiveKey(NetworkGetEntityFromNetworkId(netId), QBCore.Functions.GetPlayer(id).PlayerData.citizenid, doorState)
     else
         DropPlayer(source, Lang:t('console.invalid_event'))
         print(Lang:t('console.error_server_only', { value = source, event = 'vehiclekeys:server:GiveKey' }))
@@ -58,12 +59,20 @@ lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targ
     local entity = NetworkGetEntityFromNetworkId(netId)
     if not citizenid or not entity or not targetPlayerCitizenid then return end
     if HasKey(entity, citizenid) then
-        return not HasKey(entity, targetPlayerCitizenid) and GiveKey(entity, targetPlayerCitizenid)
+        if not HasKey(entity, targetPlayerCitizenid) and GiveKey(entity, targetPlayerCitizenid) then
+            TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                description = Lang:t("notify.keys_taken"),
+                type = 'success'
+            })
+            return true
+        end
+        return
     else
         TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
+        return
     end
 end)
 
@@ -79,27 +88,35 @@ lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, ta
     local entity = NetworkGetEntityFromNetworkId(netId)
     if not citizenid or not entity or not targetPlayerCitizenid then return end
     if HasKey(entity, citizenid) then
-        return HasKey(entity, targetPlayerCitizenid) and RemoveKey(entity, targetPlayerCitizenid)
+        if HasKey(entity, targetPlayerCitizenid) and RemoveKey(entity, targetPlayerCitizenid) then
+            TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                description = Lang:t("notify.keys_lost"),
+                type = 'success'
+            })
+            return true
+        end
+        return
     else
         TriggerClientEvent('ox_lib:notify', source, { --swap with qbx notify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
+        return
     end
 end)
 
 --- Sets the door state to a desired value.
 ---@param source number ID of the player
 ---@param netId number The network ID of the entity
----@param doorState number The door state of the vehicle (e.g., open = 0)
-lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId, doorState)
+---@return number | nil -- Returns the current Door State
+lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId)
     if not source or not netId or not doorState then return end
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
     local entity = NetworkGetEntityFromNetworkId(netId)
     if not citizenid or not entity then return end
     if HasKey(entity, citizenid) then
         if IsCloseToCoords(GetEntityCoords(entity), GetEntityCoords(GetPlayerPed(source)), Config.vehicleLockingDistance + 20.0) then
-            SetDoorState(entity, doorState)
+            return OpenCloseDoorState(entity)
         else
             DropPlayer(source, 'Attempt to Exploit')
             print('^1 Player '..source..' failed distance check during (callback: vehiclekeys:server:SetDoorState)')
@@ -109,6 +126,7 @@ lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId,
             description = Lang:t("notify.no_keys"),
             type = 'error'
         })
+        return
     end
 end)
 

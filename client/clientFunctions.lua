@@ -13,9 +13,15 @@ function GiveKey(targetPlayerId, vehicle)
     if HasKey(vehicle) then
         lib.callback('vehiclekeys:server:GiveKey', false, function(success)
             if success then
-                -- Key was successfully given.
+                lib.notify({
+                    description = Lang:t("notify.gave_keys"),
+                    type = 'success'
+                })
             else
-                -- Failed to give the key.
+                lib.notify({
+                    description = Lang:t("notify.failed_givekey"),
+                    type = 'error'
+                })
             end
         end, NetworkGetNetworkIdFromEntity(vehicle), targetPlayerId)
     else
@@ -34,11 +40,44 @@ function RemoveKey(targetPlayerId, vehicle)
     if HasKey(vehicle) then
         lib.callback('vehiclekeys:server:RemoveKey', false, function(success)
             if success then
-                -- Key was successfully removed.
+                lib.notify({
+                    description = Lang:t("notify.success_removekey"),
+                    type = 'success'
+                })
             else
-                -- Failed to remove the key.
+                lib.notify({
+                    description = Lang:t("notify.failed_removekey"),
+                    type = 'success'
+                })
             end
         end, NetworkGetNetworkIdFromEntity(vehicle), targetPlayerId)
+    else
+        lib.notify({
+            description = Lang:t("notify.no_keys"),
+            type = 'error'
+        })
+    end
+end
+
+function OpenCloseVehicleDoor(vehicle)
+    if not vehicle then return end
+    if HasKey(vehicle) then
+        lib.callback('vehiclekeys:server:SetDoorState', false, function(success)
+            if not success then
+                lib.notify({
+                    description = Lang:t("notify.failed_doorstate"),
+                    type = 'error'
+                })
+            else
+                if success == 0 then
+                    -- You opened the door
+                    -- call client natives here?
+                else
+                    -- You closed the door
+                    -- call client natives here?
+                end
+            end
+        end, NetworkGetNetworkIdFromEntity(vehicle))
     else
         lib.notify({
             description = Lang:t("notify.no_keys"),
