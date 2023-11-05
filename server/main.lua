@@ -1,7 +1,7 @@
 QBCore = exports['qb-core']:GetCoreObject()
 
 --- ##########################
---- ### SERVER-SIDE EVENTS ###
+--- ### SERVER-ONLY EVENTS ###
 --- ##########################
 
 --- Gives a key to an entity based on the player's CitizenID.
@@ -59,8 +59,11 @@ lib.callback.register('vehiclekeys:server:GiveKey', function(source, netId, targ
     if HasKey(entity, citizenid) then
         return not HasKey(entity, targetPlayerCitizenid) and GiveKey(entity, targetPlayerCitizenid)
     else
-        DropPlayer(source, 'Attempt to Exploit')
-        print('^1 Player '..source..' attempted to Give a Key while not having one (callback: vehiclekeys:server:GiveKey)')
+        TriggerClientEvent('ox_lib:notify', source, {
+            title = 'Missing Keys',
+            description = 'You don\'t have keys for this vehicle',
+            type = 'error'
+        })
     end
 end)
 
@@ -77,9 +80,11 @@ lib.callback.register('vehiclekeys:server:RemoveKey', function(source, netId, ta
     if HasKey(entity, citizenid) then
         return HasKey(entity, targetPlayerCitizenid) and RemoveKey(entity, targetPlayerCitizenid)
     else
-        DropPlayer(source, 'Attempt to Exploit')
-        print('^1 Player '..source..' attempted to Remove a Key from a player while not having one (callback: vehiclekeys:server:RemoveKey)')
-    end
+        TriggerClientEvent('ox_lib:notify', source, {
+            title = 'Missing Keys',
+            description = 'You don\'t have keys for this vehicle',
+            type = 'error'
+        })    end
 end)
 
 --- Sets the door state to a desired value.
@@ -99,8 +104,11 @@ lib.callback.register('vehiclekeys:server:SetDoorState', function(source, netId,
             print('^1 Player '..source..' failed distance check during (callback: vehiclekeys:server:SetDoorState)')
         end
     else
-        DropPlayer(source, 'Attempt to Exploit')
-        print('^1 Player '..source..' attempted to Set Vehicle Doors while not having a key (callback: vehiclekeys:server:SetDoorState)')
+        TriggerClientEvent('ox_lib:notify', source, {
+            title = 'Missing Keys',
+            description = 'You don\'t have keys for this vehicle',
+            type = 'error'
+        })
     end
 end)
 
