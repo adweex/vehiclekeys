@@ -1,5 +1,5 @@
 --- Adds a key to the selected vehicle entity and returns a success status.
----@param entity number The entity (vehicle) to add the key to.
+---@param entity number The entity (vehicle) to which the key is added.
 ---@param citizenid string The CitizenID of the player whose key is being added.
 ---@return boolean | nil `true` if the key was successfully added, `nil` otherwise.
 function GiveKey(entity, citizenid)
@@ -22,7 +22,7 @@ function GiveKey(entity, citizenid)
 end
 
 --- Removes a key from the selected vehicle entity and returns a success status.
----@param entity number The entity (vehicle) from which the key is being removed.
+---@param entity number The entity (vehicle) from which the key is removed.
 ---@param citizenid string The CitizenID of the player whose key is being removed.
 ---@return boolean | nil `true` if the key was successfully removed, `nil` otherwise.
 function RemoveKey(entity, citizenid)
@@ -38,19 +38,29 @@ function RemoveKey(entity, citizenid)
     return true
 end
 
----@param entity number The entity (vehicle) from which the key is being removed.
----@param doorState number 
+--- Sets the door state of the vehicle.
+---@param entity number The entity (vehicle) for which the door state is updated.
+---@param doorState number The door state number to update.
+---@return boolean | nil `true` if the door state was successfully updated, `nil` otherwise.
 function SetDoorState(entity, doorState)
-
+    if not entity or not doorState then return end
+    local ent = Entity(entity)
+    if not ent then return end
+    ent.state:set('doorState', doorState, true)
+    return true
 end
 
+--- Checks for the existence of a key.
+---@param entity number The entity (vehicle) where we check for the existence of a key.
+---@param citizenid string The CitizenID of the player whose key we check for.
 function HasKey(entity, citizenid)
-    return Entity(entity).state.keyholders[citizenid]
+    return Entity(entity).state.keys[citizenid]
 end
 
----@param coord1 vector3[]
----@param coord2 vector3[]
----@param distance number
+--- Checks if the given two coordinates are close to each other based on distance.
+---@param coord1 vector3[] The first set of coordinates.
+---@param coord2 vector3[] The second set of coordinates.
+---@param distance number The maximum allowed distance for them to be considered close.
 function IsCloseToCoords(coord1, coord2, distance)
     return #(coord1 - coord2) < distance
 end
